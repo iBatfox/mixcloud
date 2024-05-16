@@ -1,0 +1,50 @@
+import requests
+
+# Ваши ключи API
+client_id = 'ВАШ_API_KEY'
+client_secret = 'ВАШ_SECRET_KEY'
+
+# URL для запроса авторизации
+auth_url = 'https://www.mixcloud.com/oauth/authorize'
+
+# URL для получения токена
+token_url = 'https://www.mixcloud.com/oauth/access_token'
+
+# URL для API запросов
+api_url = 'https://api.mixcloud.com/'
+
+# Функция для получения токена
+def get_access_token():
+    params = {
+        'client_id': client_id,
+        'redirect_uri': 'ВАШ_REDIRECT_URI',
+        'response_type': 'code'
+    }
+    response = requests.get(auth_url, params=params)
+    print("Перейдите по следующему URL для авторизации:")
+    print(response.url)
+    auth_code = input("Введите код авторизации: ")
+    
+    data = {
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': 'ВАШ_REDIRECT_URI',
+        'code': auth_code,
+        'grant_type': 'authorization_code'
+    }
+    response = requests.post(token_url, data=data)
+    access_token = response.json()['access_token']
+    return access_token
+
+# Пример запроса к API
+def get_user_profile(username):
+    access_token = get_access_token()
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    response = requests.get(f'{api_url}/{username}', headers=headers)
+    return response.json()
+
+# Получение профиля пользователя
+profile = get_user_profile('имя_пользователя')
+print(profile)
